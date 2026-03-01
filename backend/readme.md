@@ -14,12 +14,13 @@
 * function testing (credit, job persistance, mocking api)
 * auth system (better-auth, jwt, payload limit)
 * socket channels for instant
+* validation with zod
 
 # Features Detailed
 
 ## Smart prompting
 
-* veo3, google-auth-library
+* veo3, google-auth-library (@google/genai)
 * User prompt -> gemini expansion -> veo 3.1
 * expansion of prompt (gemini)
 * handling failed response from veo
