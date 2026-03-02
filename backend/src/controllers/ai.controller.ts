@@ -1,42 +1,69 @@
-import { VideoGenerateSchema, VideoGetJobStatusSchema } from "@/models/ai.model";
+import {
+  AIVideoGetRequestSchema,
+  CreateAIVideoRequestSchema,
+} from "@/models/ai.model";
 import { aiService } from "@/services/ai.service";
 import { serviceResponse } from "@/utils/serviceResponse";
 import { Request, RequestHandler, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 
 class AIController {
   public generateVideo: RequestHandler = async (
     req: Request,
     res: Response
   ) => {
-    const validatedRequest = VideoGenerateSchema.safeParse(req.body);
+    try {
+      const validatedRequest = CreateAIVideoRequestSchema.safeParse(req.body);
 
-    if (!validatedRequest.success) {
-      const result = serviceResponse.failure(
-        validatedRequest.error.message,
-        null
-      );
-      return res.status(result.statusCode).send(result);
+      if (!validatedRequest.success) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .send(
+            serviceResponse.failure(
+              "Request failed",
+              null,
+              validatedRequest.error.message
+            )
+          );
+      }
+
+      const response = await aiService.createAIVideo(validatedRequest.data);
+
+      res.status(response.statusCode).send(response);
+    } catch (error) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send(serviceResponse.failure("Internal error", null, String(error)));
     }
-
-    const response = await aiService.videoGenerate(validatedRequest.data);
-
-    res.status(res.statusCode).send(response);
   };
 
-  public getVideoJobStatus: RequestHandler = async (req: Request, res: Response) => {
-    const validatedRequest = VideoGetJobStatusSchema.safeParse(req.params);
+  public getVideo: RequestHandler = async (
+    req: Request,
+    res: Response
+  ) => {
+    try {
+      const validatedRequest = AIVideoGetRequestSchema.safeParse(req.params);
 
-    if (!validatedRequest.success) {
-      const result = serviceResponse.failure(
-        validatedRequest.error.message,
-        null
-      );
-      return res.status(result.statusCode).send(result);
+      if (!validatedRequest.success) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .send(
+            serviceResponse.failure(
+              "Request failed",
+              null,
+              validatedRequest.error.message
+            )
+          );
+      }
+
+      const response = await aiService.getAIVideoStatus(validatedRequest.data);
+
+      res.status(res.statusCode).send(response);
+    } catch (error) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send(serviceResponse.failure("Internal error", null, String(error)));
     }
-
-    const response = await aiService.getVideoJobStatus(validatedRequest.data);
-
-    res.status(res.statusCode).send(response);
   };
 }
 

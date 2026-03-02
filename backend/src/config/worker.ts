@@ -1,14 +1,16 @@
-import { JobDataInterface } from "@/interfaces";
+import { AIVideoType } from "@/models/ai.model";
 import { FakeProvider } from "@/providers/fake.provider";
 import { PikaProvider } from "@/providers/pika.provider";
+import { aiService } from "@/services/ai.service";
+import { handleError } from "@/utils/handleError";
 import { Worker } from "bullmq";
 
 process.on("unhandledRejection", (err) => {
-  console.error("UNHANDLED REJECTION:", err);
+  handleError("UNHANDLED REJECTION:" + err);
 });
 
 process.on("uncaughtException", (err) => {
-  console.error("UNCAUGHT EXCEPTION:", err);
+  handleError("UNCAUGHT EXCEPTION:" + err);
 });
 
 export const providers = {
@@ -18,17 +20,28 @@ export const providers = {
 
 new Worker(
   "video-generation",
-  async ({ data }: { data: JobDataInterface }) => {
+  async ({ data }: { data: AIVideoType }) => {
     try {
       const provider = providers[data.provider];
 
-      if (!provider) return { success: false };
+      if (!provider) {
+        await aiService.updateAIVideoStatus(data.id, { ...data, status: "failed" });
+        handleError(
+          "Worker/video-generation/provider:" + "Provider has not found"
+        );
+      }
 
-      const result = await provider.generateVideo(data.prompt);
-      return result;
+      await aiService.updateAIVideoStatus(data.id, { ...data, status: "processing" });
+
+      const { videoURL } = await provider.generateTextToVideo(data);
+      await aiService.updateAIVideoStatus(data.id, {
+        ...data,
+        videoURL: videoURL ?? null,
+        status: videoURL ? "completed" : "failed",
+      });
     } catch (error) {
-       console.error("Worker error:", error);
-      return { success: false };
+      handleError("Worker/video-generation/catch" + String(error));
+      await aiService.updateAIVideoStatus(data.id, { ...data, status: "failed" });
     }
   },
   { connection: { host: "localhost", port: 6379 } }
