@@ -1,8 +1,8 @@
 
 # Tech
-`express.js` - Backend Logic + Endpoints
-`bullMQ`   - Job system
-Docker - To use Redis for queued jobs (port: 6379, name: my-redis)
+* `express.js` - Backend Logic + Endpoints
+* `bullMQ`   - Job system
+* Docker - To use Redis for queued jobs (port: 6379, name: my-redis)
 
 # Structure 
 * API Layer
