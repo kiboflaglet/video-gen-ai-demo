@@ -4,10 +4,12 @@ const VideoSchema = z.object({
   prompt: z.string().min(1).max(100),
   jobId: z.string(),
   status: z.enum(['queued', 'failed', 'completed', 'processing']),
+  provider: z.string().min(1)
 });
 
 export const VideoGenerateSchema = VideoSchema.pick({
   prompt: true,
+  provider: true
 });
 export const VideoStatusSchema = VideoSchema.pick({
   jobId: true,

@@ -1,8 +1,8 @@
+import { JobDataInterface } from "@/interfaces";
 import {
   VideoGenerateType,
   VideoGetJobStatusType,
-  VideoStatusType,
-  VideoType,
+  VideoType
 } from "@/models/ai.model";
 import { serviceResponse } from "@/utils/serviceResponse";
 import { Queue } from "bullmq";
@@ -21,9 +21,10 @@ class AIService {
     try {
       const job = await videoQueue.add("generating", {
         prompt: data.prompt,
-      });
+        provider: data.provider,
+      } as JobDataInterface);
 
-      return serviceResponse.success("video generated", {
+      return serviceResponse.success("video added to queue", {
         prompt: data.prompt,
         jobId: job.id,
         status: "queued",
@@ -51,6 +52,7 @@ class AIService {
         return serviceResponse.success("Video generated", {
           jobId: job.id || data.jobId,
           status: "completed",
+          url: job.returnvalue.url || 'no url'
         });
       }
 

@@ -1,22 +1,35 @@
+import { JobDataInterface } from "@/interfaces";
+import { FakeProvider } from "@/providers/fake.provider";
+import { PikaProvider } from "@/providers/pika.provider";
 import { Worker } from "bullmq";
-import fs from "fs";
+
+process.on("unhandledRejection", (err) => {
+  console.error("UNHANDLED REJECTION:", err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+});
+
+export const providers = {
+  test: new FakeProvider(),
+  pika: new PikaProvider(),
+};
 
 new Worker(
   "video-generation",
-  async (job) => {
-    console.log("Processing job:", job.id);
+  async ({ data }: { data: JobDataInterface }) => {
+    try {
+      const provider = providers[data.provider];
 
-    // fake long processing
-    await new Promise((r) => setTimeout(r, 100));
+      if (!provider) return { success: false };
 
-    const fileName = `gen-${job.id}.mp4`;
-
-
-    // Copy the file
-  fs.copyFileSync("./src/mock/generated.mp4", `./src/outputs/${fileName}`);
-    return {
-      videoUrl: `./src/outputs/${fileName}`,
-    };
+      const result = await provider.generateVideo(data.prompt);
+      return result;
+    } catch (error) {
+       console.error("Worker error:", error);
+      return { success: false };
+    }
   },
   { connection: { host: "localhost", port: 6379 } }
 );
