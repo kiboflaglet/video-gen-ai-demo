@@ -1,13 +1,11 @@
-# **This repo is the demonstration of the features of AI video gen system. It might have bad UI sorry but my intention is to make backend reasonable good )**
+# AI Video Generation Application
 
-Detailed features are under each folder
+#### This project is the demostration of AI video generation system.
 
-### User stories
+### Can I use it?
 
-### Added
+Project is in setting up process, some features might have some bug and the UI has not implemented yet, if it doesnt scare you, go ahead use it!
 
-None
+### what are the features?
 
-#### In Develop
-
-None
+* Check backend folder
