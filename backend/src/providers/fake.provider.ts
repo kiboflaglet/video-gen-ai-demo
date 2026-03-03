@@ -21,6 +21,8 @@ export class FakeProvider implements AIVideoProvider {
       const fileName = `gen-${Date.now()}.mp4`;
       const outputPath = `${outputsFolder}/${fileName}`;
 
+      await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 seconds
+
       fs.copyFileSync(mockVideo, outputPath);
 
       return { videoURL: outputPath };

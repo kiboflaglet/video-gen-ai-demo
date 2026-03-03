@@ -1,9 +1,6 @@
 node_modules
-src/outputs
-src/mock
-
+# Keep environment variables out of version control
 .env
-/prisma/generated/prisma
 
 /src/generated/prisma
 
